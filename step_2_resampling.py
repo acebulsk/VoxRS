@@ -140,12 +140,12 @@ def main():
 if __name__ == "__main__":
     main()
 
-# # preliminary visualization
-#
-# import matplotlib
-# matplotlib.use('TkAgg')
-# import matplotlib.pyplot as plt
-# import tifffile as tif
-# ii = 0
-# peace = tif.imread(rshm.file_dir[ii] + rshm.file_name[ii])
-# plt.imshow(peace[:, :, 2], interpolation='nearest')
+# preliminary visualization
+
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+import tifffile as tif
+ii = 0
+peace = tif.imread(rshm.file_dir[ii] + rshm.file_name[ii])
+plt.imshow(peace[:, :, 2], interpolation='nearest')

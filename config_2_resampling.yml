@@ -1,7 +1,7 @@
 ---
 # DATA INPUT PARAMETERS
 config_id: 'test_19_052' # (str) - unique identifier for this configuration, used for voxel space identification (use same in config 1)
-working_dir: '/home/cobuntu/projects/testrun/test1' # (str) - working directory for intermediate and output files (use same in config 1)
+working_dir: '/media/alex/phd-data/cob-thesis/alex-example-processing/test1' # (str) - working directory for intermediate and output files (use same in config 1)
 runtag: ''  # (str) - to be incorporated in output file names to destinguish between different runs. Blank string is fine.
 
 # VOLUMETRIC RESAMPLING PARAMETERS
@@ -10,13 +10,13 @@ samps_per_vox: 50  # (int) volumetric resample rate [samples per voxel]
 sample_threshold: 0  # (int) noise filter will drop all returns from voxels where total returns <= sample_threshold
 
 # GRID RESAMPLING PARAMETERS
-resample_grid: True # (bool) - Do you want to resample at a fixed angle across a grid? (if False, subsequent parameters are ignored)
-dem_in: '/home/cobuntu/projects/testrun/uf_clip_dem_19_052.tif' # (str) complete path to raster (geotif) file with coordinates and elevations at which to calculate hemispheres, masked to points of interest
+resample_grid: False # (bool) - Do you want to resample at a fixed angle across a grid? (if False, subsequent parameters are ignored)
+dem_in: '/media/alex/phd-data/cob-thesis/lidar/data/lidar/19_052/19_052_las_proc/OUTPUT_FILES/DEM/19_052_dem_r.05m.tif' # (str) complete path to raster (geotif) file with coordinates and elevations at which to calculate hemispheres, masked to points of interest
 phi: 0  # zenith angle of ray, calculated at each point (degrees). Can be a single value or a YAML list.
 theta: 0  # azimuth angle of ray, calculated at each point (degrees clockwise from north, from above looking down). Can be a single value or a YAML list (same length as phi)
 # HEMISPHERE RESAMPLING PARAMETERS
-resample_hemi: False # (bool) - Do you want to generate synthetic hemispheres? (if False, subsequent parameters are ignored)
-pts_in: '/home/cobuntu/projects/testrun/hemi_pts_test_19_149_cut.csv'  # (str) complete path to .csv file with coordinates and elevations at which to calculate hemispheres
+resample_hemi: True # (bool) - Do you want to generate synthetic hemispheres? (if False, subsequent parameters are ignored)
+pts_in: '/media/alex/phd-data/cob-thesis/alex-example-processing/hemi_pts_ac.csv'  # (str) complete path to .csv file with coordinates and elevations at which to calculate hemispheres
             # pts file must include the following header labels: id, easting_m, northing_m, elev_m
 img_size: 181  # angular resolution ~ # of samples across 180 deg
 max_phi_deg: 90  # (num) maximum zenith angle to sample [deg] (90 deg samples to horizon)

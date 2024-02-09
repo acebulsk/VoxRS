@@ -1,10 +1,10 @@
 ---
 # DATA INPUT PARAMETERS
 config_id: 'test_19_052' # (str) - unique identifier for this configuration, used for voxel space identification (use same in config 2)
-working_dir: '/home/cobuntu/projects/testrun/test1' # (str) - working directory for intermediate and output files (use same in config 2)
+working_dir: '/media/alex/phd-data/cob-thesis/alex-example-processing/test1' # (str) - working directory for intermediate and output files (use same in config 2)
 
-las_in: '/home/cobuntu/projects/testrun/19_052_all_WGS84_utm11N_clipped.las' # (str) - complete path to input .las file
-traj_in: '/home/cobuntu/projects/testrun/19_052_all_trajectories_WGS84_utm11N.txt' # (str) - complete path to trajectory file (.csv) corresponding to las file.
+las_in: '/media/alex/phd-data/cob-thesis/lidar/data/lidar/19_052/19_052_all_WGS84_utm11N.las' # (str) - complete path to input .las file
+traj_in: '/media/alex/phd-data/cob-thesis/lidar/data/lidar/19_052/19_052_all_trajectories_WGS84_utm11N.txt' # (str) - complete path to trajectory file (.csv) corresponding to las file.
           # trajectory file must include the following header labels: Time[s], Easting[m], Northing[m], Height[m]
 return_set: "first"  # (str) - .las returns to be considered in sampling ('first' [recommended], 'last', or 'all')
 drop_class: 7 # (int) single class to be dropped from .las file prior to interpolation (blank or -1 for none)

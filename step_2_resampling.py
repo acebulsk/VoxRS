@@ -1,24 +1,32 @@
-def main():
+import sys
+import numpy as np
+import pandas as pd
+import yaml
+import os
+import src.las_ray_sampling as lrs
+
+def main(config_file):
     """
     Configuration file for generating synthetic hemispheres of expected lidar returns by voxel ray samping of lidar
     (eg. to estimate light transmittance across the hemisphere at a given point, Staines thesis figure 3.3).
         batch_dir: directory for all batch outputs
         pts_in: coordinates and elevations at which to calculate hemispheres
-
+        
+    :param config_file: Path to the configuration file, if not provided defaults to yaml in this dir
     :return:
     """
 
-    import numpy as np
-    import pandas as pd
-    import yaml
-    import os
-    import src.las_ray_sampling as lrs
-
-    # Read YAML config file 2
-    config_in = "config_2_resampling.yml"
-
-    with open(config_in, 'r') as stream:
+    # Read YAML config file
+    with open(config_file, 'r') as stream:
         config = yaml.safe_load(stream)
+
+    # Access the phi and theta lists from the loaded configuration
+    phi_list = config['phi']
+    theta_list = config['theta']
+
+    # Now you can use phi_list and theta_list as regular Python lists
+    print("Phi list:", phi_list)
+    print("Theta list:", theta_list)
 
     config_id = config["config_id"]
     working_dir = os.path.normpath(config["working_dir"])
@@ -81,16 +89,15 @@ def main():
         rsgmeta.min_distance = config["min_distance"]  # minimum distance [m] to sample ray (default 0, increase to avoid "lens occlusion" within dense voxels)
         rsgmeta.id = 0
 
-        if type(rsgmeta.phi) is not np.array:
+        if type(rsgmeta.phi) is not np.ndarray:
             rsgmeta.phi = [rsgmeta.phi]
             rsgmeta.theta = [rsgmeta.theta]
         
         rsgmeta.file_name = ["grid_" + rsgmeta.config_id + runtag + "_p{:.4f}_t{:.4f}.tif".format(rsgmeta.phi[ii], rsgmeta.theta[ii]) for ii in range(0, np.size(rsgmeta.phi))]
-
         rsgm = lrs.rs_gridgen(rsgmeta, vox, initial_index=0)  # run grid resampling. Can take single or list of runs.
 
-
     # # HEMISPHERE RESAMPLING
+        
     if config["resample_hemi"]:
 
         # create hemi_dir (with error handling)
@@ -138,14 +145,21 @@ def main():
 # add config for sample from grid
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 2:
+        config_file = sys.argv[1]
+    else:
+        print("Usage: python script_name.py <config_file>")
+        print("Using default configuration file: config_2_resampling.yml")
+        config_file = "config_2_resampling.yml"
 
-# preliminary visualization
+    main(config_file)
 
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-import tifffile as tif
-ii = 0
-peace = tif.imread(rshm.file_dir[ii] + rshm.file_name[ii])
-plt.imshow(peace[:, :, 2], interpolation='nearest')
+# preliminary visualization - same as hemi_view function in tools
+
+# import matplotlib
+# matplotlib.use('TkAgg')
+# import matplotlib.pyplot as plt
+# import tifffile as tif
+# ii = 0
+# peace = tif.imread(rshm.file_dir[ii] + rshm.file_name[ii])
+# plt.imshow(peace[:, :, 2], interpolation='nearest')

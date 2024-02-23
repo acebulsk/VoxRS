@@ -1,19 +1,19 @@
-def main():
+import sys
+import numpy as np
+import yaml
+import os
+import src.las_ray_sampling as lrs
+
+def main(config_file):
     """
     Configuration file for building and sampling voxel space for voxel ray samping of lidar
-
+    
+    :param config_file: Path to the configuration file, if not provided defaults to yaml in this dir
     :return:
     """
 
-    import numpy as np
-    import yaml
-    import os
-    import src.las_ray_sampling as lrs
-
-    # Read YAML config file 1
-    config_in = "config_1_sampling.yml"
-
-    with open(config_in, 'r') as stream:
+    # Read YAML config file
+    with open(config_file, 'r') as stream:
         config = yaml.safe_load(stream)
 
     # # DATA INPUT PARAMETERS
@@ -59,4 +59,11 @@ def main():
     vox = lrs.las_to_vox(vox, z_slices, run_las_traj=True, posterior_calc=True, fail_overflow=False)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 2:
+        config_file = sys.argv[1]
+    else:
+        print("Usage: python script_name.py <config_file>")
+        print("Using default configuration file: config_1_sampling.yml")
+        config_file = "config_1_sampling.yml"
+
+    main(config_file)

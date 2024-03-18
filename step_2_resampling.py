@@ -88,9 +88,6 @@ def main(config_file):
         # Extract second elements into a separate list
         theta_list = [pair[1] for pair in phi_theta]
 
-        print(phi_list)
-        print(theta_list)
-
         # create grid_resampling folder if not exists
         grid_dir = os.path.join(outputs_dir, 'grid_resampling')
         if not os.path.exists(grid_dir):

@@ -4,6 +4,7 @@ import pandas as pd
 import yaml
 import os
 import src.las_ray_sampling as lrs
+import tools.lrs_footprint_products as tools
 
 def main(config_file):
     """
@@ -19,14 +20,6 @@ def main(config_file):
     # Read YAML config file
     with open(config_file, 'r') as stream:
         config = yaml.safe_load(stream)
-
-    # Access the phi and theta lists from the loaded configuration
-    phi_list = config['phi']
-    theta_list = config['theta']
-
-    # Now you can use phi_list and theta_list as regular Python lists
-    print("Phi list:", phi_list)
-    print("Theta list:", theta_list)
 
     config_id = config["config_id"]
     working_dir = os.path.normpath(config["working_dir"])
@@ -67,7 +60,37 @@ def main(config_file):
 
     # # GRID RESAMPLING
     if config["resample_grid"]:
-        
+        phi_from = config["phi"][0]
+        phi_to = config["phi"][1]
+        phi_by = config["phi"][2]
+
+        phi_list = list(range(phi_from, phi_to + 1, phi_by))
+
+        theta_from = config["theta"][0]
+        theta_to = config["theta"][1]
+        theta_by = config["theta"][2]
+
+        theta_list = list(range(theta_from, theta_to + 1, theta_by))
+
+        # create two lists of the same length each element of the first list is repeated across each element of the second
+        phi_theta = []
+
+        # Iterate over each element of the first list
+        for x in phi_list:
+            # Repeat the current element of the first list for each element of the second list
+            for y in theta_list:
+                # Append the pair (x, y) to the result list
+                phi_theta.append((x, y))
+
+        # Extract first elements into a separate list
+        phi_list = [pair[0] for pair in phi_theta]
+
+        # Extract second elements into a separate list
+        theta_list = [pair[1] for pair in phi_theta]
+
+        print(phi_list)
+        print(theta_list)
+
         # create grid_resampling folder if not exists
         grid_dir = os.path.join(outputs_dir, 'grid_resampling')
         if not os.path.exists(grid_dir):
@@ -83,8 +106,8 @@ def main(config_file):
         
         rsgmeta.src_ras_file = config["dem_in"]  # (str) complete path to raster (geotif) file with coordinates and elevations at which to calculate hemispheres, masked to points of interest
         rsgmeta.mask_file = rsgmeta.src_ras_file  # (str) complete path to raster (geotif) file with mask of points of interest (use src_ras_file by default)
-        rsgmeta.phi = np.array(config["phi"]) * np.pi / 180  # zenith angle of rays (radians)
-        rsgmeta.theta = np.array(config["theta"]) * np.pi / 180  # azimuth angle of rays (clockwise from north, from above looking down, in radians)
+        rsgmeta.phi = np.array(phi_list) * np.pi / 180  # zenith angle of rays (radians)
+        rsgmeta.theta = np.array(theta_list) * np.pi / 180  # azimuth angle of rays (clockwise from north, from above looking down, in radians)
         rsgmeta.max_distance = config["max_distance"]  # maximum distance [m] to sample ray (balance computation time with accuracy at distance)
         rsgmeta.min_distance = config["min_distance"]  # minimum distance [m] to sample ray (default 0, increase to avoid "lens occlusion" within dense voxels)
         rsgmeta.id = 0
@@ -140,6 +163,12 @@ def main(config_file):
         rshmeta.file_name = ["hemi_" + rshmeta.config_id + "_" + str(idd) + ".tif" for idd in pts.id]
 
         rshm = lrs.rs_hemigen(rshmeta, vox, tile_count_1d, n_cores)
+
+        snow_on_coef = 0.37181197  # python tx drop 5
+
+        # Loop through all .tif files in the directory
+        for idx, row in enumerate(pts.iterrows()):
+            tools.hemi_view(hemi_dir, idx, snow_on_coef)
 
 
 # add config for sample from grid

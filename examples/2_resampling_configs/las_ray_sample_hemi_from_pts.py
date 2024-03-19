@@ -51,27 +51,27 @@ def main():
     if os.path.exists(batch_dir):
         # if batch file dir exists
         input_needed = True
-        while input_needed:
-            batch_exist_action = input("Batch file directory already exists. Would you like to: (P)roceed, (E)rase and proceed, or (A)bort? ")
-            if batch_exist_action.upper() == "P":
-                input_needed = False
-            elif batch_exist_action.upper() == "E":
-                file_count = sum(len(files) for _, _, files in os.walk(batch_dir))  # dir is your directory path as string
-                remove_confirmation = input("Remove batch folder with " + str(file_count) + " contained files (Y/N)? ")
-                if remove_confirmation.upper() == "Y":
-                    # delete folder and contents
-                    import shutil
-                    shutil.rmtree(batch_dir)
-                    # recreate dir
-                    os.makedirs(batch_dir)
-                    input_needed = False
-                else:
-                    # return to while loop
-                    pass
-            elif batch_exist_action.upper() == "A":
-                raise Exception("Execution aborted by user input.")
-            else:
-                print("Invalid user input.")
+        # while input_needed:
+        #     batch_exist_action = input("Batch file directory already exists. Would you like to: (P)roceed, (E)rase and proceed, or (A)bort? ")
+        #     if batch_exist_action.upper() == "P":
+        #         input_needed = False
+        #     elif batch_exist_action.upper() == "E":
+        #         file_count = sum(len(files) for _, _, files in os.walk(batch_dir))  # dir is your directory path as string
+        #         remove_confirmation = input("Remove batch folder with " + str(file_count) + " contained files (Y/N)? ")
+        #         if remove_confirmation.upper() == "Y":
+        #             # delete folder and contents
+        #             import shutil
+        #             shutil.rmtree(batch_dir)
+        #             # recreate dir
+        #             os.makedirs(batch_dir)
+        #             input_needed = False
+        #         else:
+        #             # return to while loop
+        #             pass
+        #     elif batch_exist_action.upper() == "A":
+        #         raise Exception("Execution aborted by user input.")
+        #     else:
+        #         print("Invalid user input.")
     else:
         # create dir
         os.makedirs(batch_dir)

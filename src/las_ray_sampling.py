@@ -1921,27 +1921,27 @@ def create_dir(dir, desc=''):
     if os.path.exists(dir):
         # if dir exists
         input_needed = True
-        while input_needed:
-            dir_exist_action = input(desc + " file directory (" + dir + ") already exists. Would you like to: (P)roceed and risk overwrite, (E)rase all and proceed, or (A)bort? ")
-            if dir_exist_action.upper() == "P":
-                input_needed = False
-            elif dir_exist_action.upper() == "E":
-                file_count = sum(len(files) for _, _, files in os.walk(dir))  # dir is your directory path as string
-                remove_confirmation = input("Remove "+ desc + " folder with " + str(file_count) + " contained files (Y/N)? ")
-                if remove_confirmation.upper() == "Y":
-                    # delete folder and contents
-                    import shutil
-                    shutil.rmtree(dir)
-                    # recreate dir
-                    os.makedirs(dir)
-                    input_needed = False
-                else:
-                    # return to while loop
-                    pass
-            elif dir_exist_action.upper() == "A":
-                raise Exception("Execution aborted by user input.")
-            else:
-                print("Invalid user input.")
+        # while input_needed:
+        #     dir_exist_action = input(desc + " file directory (" + dir + ") already exists. Would you like to: (P)roceed and risk overwrite, (E)rase all and proceed, or (A)bort? ")
+        #     if dir_exist_action.upper() == "P":
+        #         input_needed = False
+        #     elif dir_exist_action.upper() == "E":
+        #         file_count = sum(len(files) for _, _, files in os.walk(dir))  # dir is your directory path as string
+        #         remove_confirmation = input("Remove "+ desc + " folder with " + str(file_count) + " contained files (Y/N)? ")
+        #         if remove_confirmation.upper() == "Y":
+        #             # delete folder and contents
+        #             import shutil
+        #             shutil.rmtree(dir)
+        #             # recreate dir
+        #             os.makedirs(dir)
+        #             input_needed = False
+        #         else:
+        #             # return to while loop
+        #             pass
+        #     elif dir_exist_action.upper() == "A":
+        #         raise Exception("Execution aborted by user input.")
+        #     else:
+        #         print("Invalid user input.")
     else:
         # create dir
         os.makedirs(dir)

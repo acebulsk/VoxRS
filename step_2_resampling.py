@@ -60,6 +60,12 @@ def main(config_file):
 
     # # GRID RESAMPLING
     if config["resample_grid"]:
+
+        # create grid_resampling folder if not exists
+        grid_dir = os.path.join(outputs_dir, 'grid_resampling')
+        if not os.path.exists(grid_dir):
+            os.makedirs(grid_dir)
+
         phi_from = config["phi"][0]
         phi_to = config["phi"][1]
         phi_by = config["phi"][2]
@@ -88,10 +94,14 @@ def main(config_file):
         # Extract second elements into a separate list
         theta_list = [pair[1] for pair in phi_theta]
 
-        # create grid_resampling folder if not exists
-        grid_dir = os.path.join(outputs_dir, 'grid_resampling')
-        if not os.path.exists(grid_dir):
-            os.makedirs(grid_dir)    
+        phi_theta_df = {'phi_deg': phi_list, 'theta_deg': theta_list}
+
+        # Create a DataFrame from the dictionary
+        phi_theta_df = pd.DataFrame(phi_theta_df)
+        phi_theta_df['phi_radians'] = np.deg2rad(phi_theta_df['phi_deg'])
+        phi_theta_df['theta_radians'] = np.deg2rad(phi_theta_df['theta_deg'])
+        print(phi_theta_df)
+        phi_theta_df.to_csv(grid_dir + '/' + config_id + runtag + "grid_resampling_phi_theta_dict.csv", index=False)
         
         # define VoxRS grid metadata object
         rsgmeta = lrs.RaySampleGridMetaObj()

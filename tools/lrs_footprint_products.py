@@ -19,29 +19,55 @@ def hemi_view(batch_dir, ii, cn_coef=0.38):
     import matplotlib.pyplot as plt
 
     rshmeta = pd.read_csv(batch_dir + "rshmetalog.csv")
-    imsize = rshmeta.img_size_px[0]  # assuming all images have same dimensions
-    im_count = len(rshmeta)
+    # imsize = rshmeta.img_size_px[0]  # assuming all images have same dimensions
+    # im_count = len(rshmeta)
 
-    # load image pixel angle lookup
-    angle_lookup = pd.read_csv(batch_dir + "phi_theta_lookup.csv")
-    # build phi image (in radians)
-    phi = np.full((imsize, imsize), np.nan)
-    phi[(np.array(angle_lookup.y_index), np.array(angle_lookup.x_index))] = angle_lookup.phi
-    # build theta image (in radians)
-    theta = np.full((imsize, imsize), np.nan)
-    theta[(np.array(angle_lookup.y_index), np.array(angle_lookup.x_index))] = angle_lookup.theta
+    # # load image pixel angle lookup
+    # angle_lookup = pd.read_csv(batch_dir + "phi_theta_lookup.csv")
+    # # build phi image (in radians)
+    # phi = np.full((imsize, imsize), np.nan)
+    # phi[(np.array(angle_lookup.y_index), np.array(angle_lookup.x_index))] = angle_lookup.phi
+    # # build theta image (in radians)
+    # theta = np.full((imsize, imsize), np.nan)
+    # theta[(np.array(angle_lookup.y_index), np.array(angle_lookup.x_index))] = angle_lookup.theta
 
 
     # import and calculate contact numbers, transmittance, and associated errors
-    # see eq. A.16 in Staines & Pomeroy 2023 Supplementary
+   
     im = tif.imread(batch_dir + rshmeta.file_name[ii])
-    contacts = im * cn_coef
-    transmit = np.exp(-contacts)
+    contacts = im * cn_coef # expected returns along a ray i.e., contact number, <uB> in equation A.16
+    transmit = np.exp(-contacts)  # see eq. A.16 in Staines & Pomeroy 2023 Supplementary
+
+    # array column definitions below
+    # the contacts/transmittance data is in a 3d array [sheets, rows, cols]
+    # the cols correspond to:
+    # 0 - mean
+    # 1 - stdev
+    # this is defined in the rshm_iterate function: 
+        # template = np.full((rshmeta.img_size, rshmeta.img_size, 2), np.nan)
+        # template[(rays_out.y_index.values, rays_out.x_index.values, 0)] = rays_out.returns_mean
+        # template[(rays_out.y_index.values, rays_out.x_index.values, 1)] = rays_out.returns_std
+    
+    # access data for hemi and output to png
+    plt.imshow(contacts[:, :, 0], interpolation='nearest')  # Contact Number
+    plt.colorbar(label='Contact Number')  # Add a colorbar with a label
+    plt.savefig(batch_dir + rshmeta.id[ii] + '_hemi_view_output_contacts_mean.png')  # Save the image to a file
+    plt.close()  # Close the plot to avoid overlapping
+
+    plt.imshow(contacts[:, :, 1], interpolation='nearest')  # Contact Number error
+    plt.colorbar(label='Contact Number Stdev')  # Add a colorbar with a label
+    plt.savefig(batch_dir + rshmeta.id[ii] + '_hemi_view_output_contacts_stdev.png')  # Save the image to a file
+    plt.close()  # Close the plot to avoid overlapping
 
     plt.imshow(transmit[:, :, 0], interpolation='nearest')  # transmittance
-    plt.imshow(transmit[:, :, 0], interpolation='nearest')  # transmittance error
-    plt.savefig(batch_dir + 'hemi_view_output.png')  # Save the image to a file
+    plt.colorbar(label='Transmittance')  # Add a colorbar with a label
+    plt.savefig(batch_dir + rshmeta.id[ii] + '_hemi_view_output_transmittance_mean.png')  # Save the image to a file
+    plt.close()  # Close the plot to avoid overlapping
 
+    plt.imshow(transmit[:, :, 1], interpolation='nearest')  # transmittance error
+    plt.colorbar(label='Transmittance Stdev')  # Add a colorbar with a label
+    plt.savefig(batch_dir + rshmeta.id[ii] + 'hemi_view_output_transmittance_stdev.png')  # Save the image to a file
+    plt.close()  # Close the plot to avoid overlapping
 
 def lrs_footprint_products(batch_dir, cn_coef, file_out=None, threshold=False):
 
@@ -277,13 +303,13 @@ def lrs_footprint_products(batch_dir, cn_coef, file_out=None, threshold=False):
 #
 #
 # 045_050_052 -- snow_on
-snow_on_dir = '/media/alex/phd-data/cob-thesis/alex-example-processing/test1/outputs/hemisphere_resampling/'
-snow_on_coef = 0.37181197  # python tx drop 5
+# snow_on_dir = '/media/alex/phd-data/local-usask/analysis/lidar-processing/data/processed/23_072/voxrs/outputs/hemisphere_resampling/'
+# snow_on_coef = 0.37181197  # python tx drop 5
 # snow_on_coef = 0.1364611  # optimized for cn dropping 5th
 # cn_coef = 0.141832  # optimized for cn
 # lrs_footprint_products(snow_on_dir, snow_on_coef, file_out=True)
 
-hemi_view(snow_on_dir, 1, snow_on_coef)
+# hemi_view(snow_on_dir, 0, snow_on_coef)
 
 #
 #

@@ -1805,7 +1805,7 @@ def rshm_iterate(rshm, rshmeta, vox, log_path, process_id=0, nrows=4):
     return rshm
 
 
-def rs_gridgen(rsgmeta, vox, chunksize=1000000, initial_index=0):
+def rs_gridgen(rsgmeta, vox, runtag, chunksize=1000000, initial_index=0):
     """
     ray sampling over grid
     :param rsgmeta: ray sampling over grid metadata object
@@ -1835,6 +1835,8 @@ def rs_gridgen(rsgmeta, vox, chunksize=1000000, initial_index=0):
     rsgm = pd.DataFrame({"id": rsgmeta.id,
                         "file_name": rsgmeta.file_name,
                         "file_dir": rsgmeta.file_dir,
+                        "phi_d": rsgmeta.phi_d,
+                        "theta_d": rsgmeta.theta_d,
                         "phi": rsgmeta.phi,
                         "theta": rsgmeta.theta,
                         "src_las_file": vox.las_in,
@@ -1867,6 +1869,13 @@ def rs_gridgen(rsgmeta, vox, chunksize=1000000, initial_index=0):
     # load dem as points
     points_in = dem_to_points(rsgmeta.src_ras_file, rsgmeta.mask_file)
 
+    file_path_out = os.path.join(rsgm.file_dir.iloc[0], "grid_resampled_" + rsgmeta.config_id + runtag + ".h5")
+
+    # Check if the file exists
+    if os.path.exists(file_path_out):
+        # If the file exists, delete it
+        os.remove(file_path_out)
+
     for ii in tqdm(range(initial_index, len(rsgm)), desc="angle set", ncols=100, colour='white'):
         print(str(ii + 1) + " of " + str(len(rsgm)) + ': ', end='')
 
@@ -1891,18 +1900,48 @@ def rs_gridgen(rsgmeta, vox, chunksize=1000000, initial_index=0):
         # method = rsgmeta.agg_method
         rays_out = agg_ray_chunk(chunksize, vox, rays_in, rsgmeta.agg_method, rsgmeta.agg_sample_length, rsgmeta.lookup_db)
 
+        # format to hdf5 output
+        cols_out = ['x_coord', 'y_coord', 'z_m', 'returns_mean', 'returns_std']
+        rays_out_sub = rays_out[cols_out]
+        rays_out_sub.loc[:,'phi'] = rsgm.phi[ii]
+        rays_out_sub.loc[:,'theta'] = rsgm.theta[ii]
+        rays_out_arr = rays_out_sub.to_numpy()
+        dtype = rays_out_arr.dtype
+
+        # Write the array to an HDF5 file with metadata and specified data type
+        with h5py.File(file_path_out, 'a') as hdf_file:
+            if 'grid_hemi_df' in hdf_file:
+                dataset = hdf_file['grid_hemi_df']
+
+                # Append rays_out_arr to the existing dataset
+                dataset.resize((dataset.shape[0] + rays_out_arr.shape[0]), axis = 0)
+                dataset[-rays_out_arr.shape[0]:] = rays_out_arr
+
+                
+            else:
+                dataset = hdf_file.create_dataset('grid_hemi_df',
+                                                   data=rays_out_arr,
+                                                     dtype=dtype,
+                                                       compression="gzip",
+                                                        chunks=True,
+                                                        maxshape =(None,7))
+
+            # Add column names as metadata
+            for idx, column_name in enumerate(rays_out_sub.columns):
+                dataset.attrs[f'{idx}_column'] = column_name
+
         # format to image
-        ras = raslib.raster_load(rsgmeta.src_ras_file)
-        ras.band_count = 2
-        mean_data = np.full((ras.rows, ras.cols), ras.no_data)
-        mean_data[(rays_out.y_index.values, rays_out.x_index.values)] = rays_out.returns_mean
-        std_data = np.full((ras.rows, ras.cols), ras.no_data)
-        std_data[(rays_out.y_index.values, rays_out.x_index.values)] = rays_out.returns_std
-        ras.data = [mean_data, std_data]
-        ras_clipped = raslib.clip_raster_to_valid_extent(ras)
-        # write image
-        raster_out = os.path.join(rsgm.file_dir.iloc[ii], rsgm.file_name.iloc[ii])
-        raslib.raster_save(ras_clipped, raster_out, data_format="float32")
+        # ras = raslib.raster_load(rsgmeta.src_ras_file)
+        # ras.band_count = 2
+        # mean_data = np.full((ras.rows, ras.cols), ras.no_data)
+        # mean_data[(rays_out.y_index.values, rays_out.x_index.values)] = rays_out.returns_mean
+        # std_data = np.full((ras.rows, ras.cols), ras.no_data)
+        # std_data[(rays_out.y_index.values, rays_out.x_index.values)] = rays_out.returns_std
+        # ras.data = [mean_data, std_data]
+        # ras_clipped = raslib.clip_raster_to_valid_extent(ras)
+        # # write image
+        # raster_out = os.path.join(rsgm.file_dir.iloc[ii], rsgm.file_name.iloc[ii])
+        # raslib.raster_save(ras_clipped, raster_out, data_format="float32")
 
         # log meta
         rsgm.loc[ii, "created_datetime"] = time.strftime('%Y-%m-%d %H:%M:%S')

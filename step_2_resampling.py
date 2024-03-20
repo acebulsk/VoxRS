@@ -113,6 +113,8 @@ def main(config_file):
         
         rsgmeta.src_ras_file = config["dem_in"]  # (str) complete path to raster (geotif) file with coordinates and elevations at which to calculate hemispheres, masked to points of interest
         rsgmeta.mask_file = rsgmeta.src_ras_file  # (str) complete path to raster (geotif) file with mask of points of interest (use src_ras_file by default)
+        rsgmeta.phi_d = np.array(phi_list) # zenith angle of rays (deg)
+        rsgmeta.theta_d = np.array(theta_list) # azimuth angle of rays (clockwise from north, from above looking down, in deg)
         rsgmeta.phi = np.array(phi_list) * np.pi / 180  # zenith angle of rays (radians)
         rsgmeta.theta = np.array(theta_list) * np.pi / 180  # azimuth angle of rays (clockwise from north, from above looking down, in radians)
         rsgmeta.max_distance = config["max_distance"]  # maximum distance [m] to sample ray (balance computation time with accuracy at distance)
@@ -124,7 +126,7 @@ def main(config_file):
             rsgmeta.theta = [rsgmeta.theta]
         
         rsgmeta.file_name = ["grid_" + rsgmeta.config_id + runtag + "_p{:.4f}_t{:.4f}.tif".format(rsgmeta.phi[ii], rsgmeta.theta[ii]) for ii in range(0, np.size(rsgmeta.phi))]
-        rsgm = lrs.rs_gridgen(rsgmeta, vox, initial_index=0)  # run grid resampling. Can take single or list of runs.
+        rsgm = lrs.rs_gridgen(rsgmeta, vox, runtag, initial_index=0)  # run grid resampling. Can take single or list of runs.
 
     # # HEMISPHERE RESAMPLING
         
@@ -155,7 +157,7 @@ def main(config_file):
 
         # PROCESSING PARAMETERS
         tile_count_1d = 5  # (int) number of square tiles along one side (total # of tiles = tile_count_1d^2)
-        n_cores = 3  # (int) number of processing cores
+        n_cores = config["n_cores"]  # (int) number of processing cores
         
         # PTS CONFIGURATION
         pts_in = config["pts_in"]  # (str) path to .csv file with coordinates and elevations at which to calculate hemispheres

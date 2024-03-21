@@ -175,9 +175,9 @@ def main(config_file):
 
         snow_on_coef = 0.37181197  # python tx drop 5
 
-        # Loop through all .tif files in the directory
-        for idx, row in enumerate(pts.iterrows()):
-            tools.hemi_view(hemi_dir, idx, snow_on_coef)
+        # Loop through all .tif files in the directory and creat png outputs
+        # for idx, row in enumerate(pts.iterrows()):
+        #     tools.hemi_view(hemi_dir, idx, snow_on_coef)
 
 
 # add config for sample from grid

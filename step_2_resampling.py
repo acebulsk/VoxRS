@@ -72,9 +72,23 @@ def main(config_file):
 
         phi_list = list(range(phi_from, phi_to + 1, phi_by))
 
-        theta_from = config["theta"][0]
-        theta_to = config["theta"][1]
-        theta_by = config["theta"][2]
+        if theta_offset is None and theta_step is None:
+            print('Using theta sequence specified in the yaml file.')
+
+            theta_from = config["theta"][0]
+            theta_to = config["theta"][1]
+            theta_by = config["theta"][2]
+
+        else:
+            print("Overriding the yaml file theta sequence and using argument values: ")
+            print("theta-offset: ", theta_offset)
+            print("theta-step: ", theta_step)
+
+            theta_from = theta_offset*theta_step
+            theta_to = theta_from + (theta_step-1)
+            theta_by = 1
+
+            runtag = runtag + "t" + str(theta_from) + "_" + str(theta_to)
 
         theta_list = list(range(theta_from, theta_to + 1, theta_by))
 
@@ -183,12 +197,27 @@ def main(config_file):
 # add config for sample from grid
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
+    if len(sys.argv) >= 2:
         config_file = sys.argv[1]
     else:
-        print("Usage: python script_name.py <config_file>")
+        print("Usage: python script_name.py <config_file> [theta-offset] [theta-step]")
         print("Using default configuration file: config_2_resampling.yml")
         config_file = "config_2_resampling.yml"
+    
+    # Setting default values for theta-offset and theta-step
+    theta_offset = None
+    theta_step = None
+    
+    # Check if theta-offset and theta-step arguments are provided
+    if len(sys.argv) >= 3:
+        theta_offset = int(sys.argv[2])
+    if len(sys.argv) >= 4:
+        theta_step = int(sys.argv[3])
+
+    # Check if theta_offset is provided but theta_step is not
+    if theta_offset is not None and theta_step is None:
+        print("Error: Theta-step not provided.")
+        sys.exit(1)
 
     main(config_file)
 

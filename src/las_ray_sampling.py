@@ -1903,32 +1903,27 @@ def rs_gridgen(rsgmeta, vox, runtag, chunksize=1000000, initial_index=0):
         # format to hdf5 output
         cols_out = ['x_coord', 'y_coord', 'z_m', 'returns_mean', 'returns_std']
         rays_out_sub = rays_out[cols_out]
-        rays_out_sub.loc[:,'phi'] = rsgm.phi[ii]
-        rays_out_sub.loc[:,'theta'] = rsgm.theta[ii]
         rays_out_arr = rays_out_sub.to_numpy()
         dtype = rays_out_arr.dtype
+        h5_dset_name = "p" + str(rsgm.phi_d[ii]) + "_t" + str(rsgm.theta_d[ii])
 
         # Write the array to an HDF5 file with metadata and specified data type
         with h5py.File(file_path_out, 'a') as hdf_file:
-            if 'grid_hemi_df' in hdf_file:
-                dataset = hdf_file['grid_hemi_df']
-
-                # Append rays_out_arr to the existing dataset
-                dataset.resize((dataset.shape[0] + rays_out_arr.shape[0]), axis = 0)
-                dataset[-rays_out_arr.shape[0]:] = rays_out_arr
-
-                
-            else:
-                dataset = hdf_file.create_dataset('grid_hemi_df',
-                                                   data=rays_out_arr,
-                                                     dtype=dtype,
-                                                       compression="gzip",
-                                                        chunks=True,
-                                                        maxshape =(None,7))
+            dataset = hdf_file.create_dataset(h5_dset_name,
+                                                data=rays_out_arr,
+                                                    dtype=dtype,
+                                                    compression="gzip")
+            
+            dataset.attrs['config_id'] = rsgmeta.config_id
+            dataset.attrs['runtag'] = runtag
+            dataset.attrs['phi'] = rsgm.phi[ii]
+            dataset.attrs['theta'] = rsgm.theta[ii]
+            dataset.attrs['phi_d'] = rsgm.phi_d[ii]
+            dataset.attrs['theta_d'] = rsgm.theta_d[ii]
 
             # Add column names as metadata
             for idx, column_name in enumerate(rays_out_sub.columns):
-                dataset.attrs[f'{idx}_column'] = column_name
+                dataset.attrs[f'column_{idx}'] = column_name
 
         # format to image
         # ras = raslib.raster_load(rsgmeta.src_ras_file)

@@ -108,14 +108,6 @@ def main(config_file):
         # Extract second elements into a separate list
         theta_list = [pair[1] for pair in phi_theta]
 
-        phi_theta_df = {'phi_deg': phi_list, 'theta_deg': theta_list}
-
-        # Create a DataFrame from the dictionary
-        phi_theta_df = pd.DataFrame(phi_theta_df)
-        phi_theta_df['phi_radians'] = np.deg2rad(phi_theta_df['phi_deg'])
-        phi_theta_df['theta_radians'] = np.deg2rad(phi_theta_df['theta_deg'])
-        print(phi_theta_df)
-        phi_theta_df.to_csv(grid_dir + '/' + config_id + runtag + "grid_resampling_phi_theta_dict.csv", index=False)
         
         # define VoxRS grid metadata object
         rsgmeta = lrs.RaySampleGridMetaObj()

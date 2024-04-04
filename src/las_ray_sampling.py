@@ -1786,6 +1786,10 @@ def rshm_iterate(rshm, rshmeta, vox, log_path, process_id=0, nrows=4):
         else:
             raise Exception("Unknown agg_method: " + rshmeta.agg_method)
 
+        # write raw data to csv, seems like python needs to have the hemi data transfered to a grid, however with R we can handle the phi/theta values directly for plotting
+        output_file = rshm.file_dir.iloc[ii] + rshm.file_name.iloc[ii]
+        output_file = output_file.replace('.tif', '.csv')
+        rays_out.to_csv(output_file)
 
         # format to image
         template = np.full((rshmeta.img_size, rshmeta.img_size, 2), np.nan)

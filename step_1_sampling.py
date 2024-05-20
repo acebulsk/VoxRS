@@ -50,8 +50,8 @@ def main(config_file):
     vox.vox_hdf5 = os.path.join(working_dir, "voxrs_" + config_id + '_vox.h5')  # file path to vox file (.hdf5)
 
     # # PROCESSING PARAMETERS
-    vox.las_traj_chunksize = 10000000  # (int) point cloud chunk size for interpolation with trajectory (default 10000000)
-    z_slices = 4  # (int) - number of horizontal layers for chunking of ray sampling (increase for memory management)
+    vox.las_traj_chunksize = config["las_traj_chunksize"]  # (int) point cloud chunk size for interpolation with trajectory (default 10000000)
+    z_slices = config["z_slices"]  # (int) - number of horizontal layers for chunking of ray sampling (increase for memory management)
 
 
     # # BUILD VOX

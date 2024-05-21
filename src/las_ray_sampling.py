@@ -1432,7 +1432,7 @@ def las_to_vox(vox, z_slices, run_las_traj=True, fail_overflow=False, posterior_
 
     if posterior_calc:
         vox = load_vox(vox.vox_hdf5, load_data=True)
-        beta_lookup_post_calc(vox)
+        beta_lookup_post_calc(vox, z_slices)
 
     return vox
 
